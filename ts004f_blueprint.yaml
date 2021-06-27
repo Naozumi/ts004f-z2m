@@ -1,0 +1,86 @@
+blueprint:
+  name: Tuya 4-Button Scene Switch TS004F
+  description: Control Tuya TS004F via Zigbee2MQTT
+  domain: automation
+  input:
+    switch:
+      name: TS004F Switch
+      description: Tuya 4-Button Scene Switch to use
+      selector:
+        entity:
+          domain: sensor
+          integration: mqtt
+    button_one_short_press:
+      name: Single Press - Button 1
+      description: Action to run on button 1 (upper-left) single press
+      default: []
+      selector:
+        action: {}
+    button_two_short_press:
+      name: Single Press - Button 2
+      description: Action to run on button 2 (lower-left) single press
+      default: []
+      selector:
+        action: {}
+    button_three_short_press:
+      name: Single Press - Button 3
+      description: Action to run on button 3 (upper-right) single press
+      default: []
+      selector:
+        action: {}
+    button_three_long_press:
+      name: Long Press - Button 3
+      description: Action to run on button 3 (upper-right) long press
+      default: []
+      selector:
+        action: {}
+    button_four_short_press:
+      name: Single Press - Button 4
+      description: Action to run on button 4 (upper-left) single press
+      default: []
+      selector:
+        action: {}
+    button_four_long_press:
+      name: Long Press - Button 4
+      description: Action to run on button 4 (upper-left) long press
+      default: []
+      selector:
+        action: {}
+    button_long_stop:
+      name: Long Press - Stop
+      description: Action to run on when release button 3 or 4 after long press
+      default: []
+      selector:
+        action: {}
+  source_url: 
+mode: restart
+max_exceeded: silent
+trigger:
+- platform: state
+  entity_id: !input 'switch'
+  attribute: action
+action:
+- variables:
+    command: '{{ trigger.to_state.state }}'
+- choose:
+  - conditions:
+    - '{{ command == ''on'' }}'
+    sequence: !input 'button_one_short_press'
+  - conditions:
+    - '{{ command == ''off'' }}'
+    sequence: !input 'button_two_short_press'
+  - conditions:
+    - '{{ command == ''brightness_step_up'' }}'
+    sequence: !input 'button_three_short_press'
+  - conditions:
+    - '{{ command == ''brightness_step_down'' }}'
+    sequence: !input 'button_four_short_press'
+  - conditions:
+    - '{{ command == ''brightness_move_up'' }}'
+    sequence: !input 'button_three_long_press'
+  - conditions:
+    - '{{ command == ''brightness_move_down'' }}'
+    sequence: !input 'button_four_long_press'
+  - conditions:
+    - '{{ command == ''brightness_stop'' }}'
+    sequence: !input 'button_long_stop'
